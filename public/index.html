@@ -161,7 +161,7 @@ document.getElementById("dl").onclick=()=>{
   x.fillStyle="#14f195";x.fillText(slotMs+"ms",640,380);
   x.fillStyle="#f2f2f5";x.font="700 42px system-ui,sans-serif";x.fillText(plain().slice(0,60),80,490);
   x.fillStyle="#9aa0b8";x.font="500 30px system-ui,sans-serif";x.fillText("test yours → "+SITE,80,600);
-  x.fillStyle="#f2f2f5";x.font="800 30px system-ui,sans-serif";x.fillText("owlchain",900,600);x.fillStyle="#14f195";x.fillText("labs",1027,600);
+  x.fillStyle="#f2f2f5";x.font="800 30px system-ui,sans-serif";{const w1=x.measureText("owlchain").width,w2=x.measureText("labs").width,lx=1140-w1-w2;x.fillText("owlchain",lx,600);x.fillStyle="#14f195";x.fillText("labs",lx+w1,600);}
   const a=document.createElement("a");a.download="faster-than-solana.png";a.href=c.toDataURL("image/png");a.click();
 };
 </script>
