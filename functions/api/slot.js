@@ -1,8 +1,11 @@
 // returns the average solana slot time in ms, fetched server side
-// set HELIUS_RPC_URL in cloudflare pages env vars to use your own rpc (recommended)
+// set HELIUS_RPC_URL (full url or just the helius api key) as a runtime secret
 export async function onRequestGet({ env }) {
   const errs = [];
-  const rpcs = [env.HELIUS_RPC_URL, "https://api.mainnet-beta.solana.com"].filter(Boolean);
+  // accepts a full rpc url or just the helius api key
+  const raw = (env.HELIUS_RPC_URL || env.HELIUS_API_KEY || "").trim();
+  const helius = raw && !raw.startsWith("http") ? `https://mainnet.helius-rpc.com/?api-key=${raw}` : raw;
+  const rpcs = [helius, "https://api.mainnet-beta.solana.com"].filter(Boolean);
   for (const rpc of rpcs) {
     try {
       const r = await fetch(rpc, {
@@ -21,5 +24,5 @@ export async function onRequestGet({ env }) {
       }
     } catch (e) { errs.push(`${rpc.split("?")[0]}: ${e.message}`); }
   }
-  return Response.json({ slotMs: 200, live: false, hasKey: !!env.HELIUS_RPC_URL, errs }, { headers: { "cache-control": "public, max-age=30" } });
+  return Response.json({ slotMs: 200, live: false, hasKey: !!raw, errs }, { headers: { "cache-control": "public, max-age=30" } });
 }
