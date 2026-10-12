@@ -77,7 +77,7 @@ canvas{display:none}
     </div>
   </div>
 
-  <p class="foot">slot time from public solana rpc. other chains use their target block times (base 2s, ethereum 12s, bitcoin ~10min).<br>open source · built by <a href="https://x.com/OwlChainLabs">@OwlChainLabs</a></p>
+  <p class="foot">slot time from solana mainnet rpc. other chains use their target block times (base 2s, ethereum 12s, bitcoin ~10min).<br>open source · built by <a href="https://x.com/OwlChainLabs">@OwlChainLabs</a></p>
 </main>
 <canvas id="cv" width="1200" height="675"></canvas>
 <script>
@@ -85,10 +85,8 @@ const SITE="speed.owlchainlabs.xyz";
 let slotMs=200, liveOk=false;
 async function loadSlot(){
   try{
-    const r=await fetch("https://api.mainnet-beta.solana.com",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:1,method:"getRecentPerformanceSamples",params:[10]})});
-    const j=await r.json();const s=j.result||[];
-    let slots=0,sec=0;for(const x of s){slots+=x.numSlots;sec+=x.samplePeriodSecs}
-    if(slots>0){slotMs=Math.round(sec*1000/slots);liveOk=true}
+    const j=await (await fetch("/api/slot")).json();
+    if(j.live&&j.slotMs>0){slotMs=j.slotMs;liveOk=true}
   }catch(e){}
   document.getElementById("slot").textContent=slotMs+" ms";
   document.getElementById("slotNote").textContent=liveOk?"per block · live":"target (live data unavailable)";

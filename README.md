@@ -9,7 +9,7 @@ can you beat a block?
 
 ## what it does
 
-1. shows the live solana slot time from public mainnet rpc (`getRecentPerformanceSamples`)
+1. shows the live solana slot time from mainnet rpc (`getRecentPerformanceSamples`, fetched server side in `functions/api/slot.js`)
 2. races solana against base, ethereum and bitcoin block by block
 3. a 3 round reaction test: wait for green, tap
 4. tells you how many times slower you are than a solana block
@@ -23,7 +23,8 @@ can you beat a block?
 
 ## run it yourself
 
-it's one html file. no build, no keys, no backend.
+one html file plus one cloudflare pages function for the live slot time. no build step.
+optional: set `HELIUS_RPC_URL` as an env var in cloudflare pages to use your own rpc.
 
 ```bash
 git clone https://github.com/OwlChainLabs/speed-test
