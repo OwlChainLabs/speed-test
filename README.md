@@ -23,15 +23,16 @@ can you beat a block?
 
 ## run it yourself
 
-one html file plus one cloudflare pages function for the live slot time. no build step.
-optional: set `HELIUS_RPC_URL` as an env var in cloudflare pages to use your own rpc.
+the page is one html file in `public/`. a tiny cloudflare worker (`worker.js`) serves it and adds `/api/slot`, which reads the slot time server side so your rpc key never reaches the browser.
 
 ```bash
 git clone https://github.com/OwlChainLabs/speed-test
-open speed-test/index.html
+cd speed-test
+npx wrangler secret put HELIUS_RPC_URL   # your helius rpc url or just the api key
+npx wrangler deploy
 ```
 
-deploys as is on cloudflare pages, github pages or any static host.
+without a key it falls back to the public rpc, and if that is blocked the page shows the 200ms target instead of live data.
 
 ## license
 
