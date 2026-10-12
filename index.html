@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>faster than solana?</title>
+<meta name="description" content="solana blocks now land every ~200ms. can your reflexes keep up?">
+<style>
+:root{--bg:#0a0d1a;--bg2:#141a33;--card:#11162b;--line:#232a4a;--text:#f2f2f5;--muted:#9aa0b8;--green:#14f195;--purple:#9945ff;--red:#ff5c7a;--yellow:#ffc857}
+*{box-sizing:border-box}
+html{background:#0a0d1a}html,body{margin:0;min-height:100vh;color:var(--text);background:radial-gradient(circle at 50% 0%,var(--bg2),var(--bg) 60%) fixed;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--green)}
+.top{padding:18px 16px;max-width:760px;margin:0 auto;font-weight:800;letter-spacing:-.01em}
+.top span{color:var(--green)}
+main{max-width:760px;margin:0 auto;padding:8px 16px 64px}
+h1{font-size:clamp(2rem,6vw,3rem);margin:12px 0 6px;letter-spacing:-.03em}
+.bar{height:4px;width:160px;border-radius:2px;margin:12px 0 18px;background:linear-gradient(90deg,var(--purple),var(--green))}
+.sub{color:var(--muted);margin:0 0 28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px}
+.k{color:var(--muted);font-size:.8rem;text-transform:lowercase}
+.live{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.live .big{font-size:2.6rem;font-weight:800;color:var(--green);font-variant-numeric:tabular-nums}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 10px var(--green);animation:p 1s infinite}
+@keyframes p{50%{opacity:.3}}
+.lane{display:grid;grid-template-columns:90px 1fr 70px;gap:10px;align-items:center;margin:12px 0}
+.lane .n{font-weight:700;font-size:.9rem}
+.track{height:22px;background:#0c1124;border-radius:11px;overflow:hidden;position:relative}
+.fill{height:100%;width:0;border-radius:11px}
+.cnt{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+#pad{height:230px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:1.5rem;font-weight:800;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:background .05s;border:1px solid var(--line);background:var(--card);padding:16px}
+#pad.wait{background:#2a1020;color:var(--red)}
+#pad.go{background:var(--green);color:#0a0d1a}
+#pad small{display:block;font-size:.85rem;font-weight:500;color:var(--muted);margin-top:8px}
+#pad.go small{color:#0a0d1a}
+.res{display:none}
+.res .big{font-size:2.4rem;font-weight:800;font-variant-numeric:tabular-nums}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn.x{background:var(--text);color:#0a0d1a}
+.btn.g{background:transparent;color:var(--text);border:1px solid var(--line)}
+input{width:100%;background:#0c1124;border:1px solid var(--line);color:var(--text);border-radius:12px;padding:12px 14px;font-size:1rem;margin-top:12px}
+canvas{display:none}
+.foot{color:var(--muted);font-size:.8rem;text-align:center;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="top">owlchain<span>labs</span></div>
+<main>
+  <h1>⚡ faster than solana?</h1>
+  <div class="bar"></div>
+  <p class="sub">solana just went to ~200ms blocks. the average human reaction is around 250ms.<br>so… can you beat a block?</p>
+
+  <div class="card">
+    <div class="k"><span class="dot"></span>&nbsp; live solana slot time (last minutes, mainnet)</div>
+    <div class="live"><span class="big" id="slot">…</span><span class="k" id="slotNote">loading</span></div>
+  </div>
+
+  <div class="card">
+    <div class="k">blocks produced in the last <b id="secs">0</b>s</div>
+    <div class="lane"><div class="n" style="color:var(--green)">solana</div><div class="track"><div class="fill" id="f0" style="background:linear-gradient(90deg,var(--purple),var(--green))"></div></div><div class="cnt" id="c0">0</div></div>
+    <div class="lane"><div class="n">base</div><div class="track"><div class="fill" id="f1" style="background:#3b6cff"></div></div><div class="cnt" id="c1">0</div></div>
+    <div class="lane"><div class="n">ethereum</div><div class="track"><div class="fill" id="f2" style="background:#8a92b2"></div></div><div class="cnt" id="c2">0</div></div>
+    <div class="lane"><div class="n">bitcoin</div><div class="track"><div class="fill" id="f3" style="background:#f7931a"></div></div><div class="cnt" id="c3">0</div></div>
+  </div>
+
+  <div id="pad" class="card">tap to start<small>wait for green, then tap as fast as you can. 3 rounds.</small></div>
+
+  <div class="card res" id="res">
+    <div class="k">your average reaction</div>
+    <div class="big" id="avg"></div>
+    <p id="verdict" style="margin:8px 0 0;font-size:1.15rem"></p>
+    <input id="tag" placeholder="challenge a friend: @handle (optional)" autocomplete="off" spellcheck="false">
+    <div class="btns">
+      <a class="btn x" id="share" target="_blank" rel="noopener"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>post result</a>
+      <button class="btn g" id="dl">⬇ save card</button>
+      <button class="btn g" id="again">↻ again</button>
+    </div>
+  </div>
+
+  <p class="foot">slot time from public solana rpc. other chains use their target block times (base 2s, ethereum 12s, bitcoin ~10min).<br>open source · built by <a href="https://x.com/OwlChainLabs">@OwlChainLabs</a></p>
+</main>
+<canvas id="cv" width="1200" height="675"></canvas>
+<script>
+const SITE="speed.owlchainlabs.xyz";
+let slotMs=200, liveOk=false;
+async function loadSlot(){
+  try{
+    const r=await fetch("https://api.mainnet-beta.solana.com",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:1,method:"getRecentPerformanceSamples",params:[10]})});
+    const j=await r.json();const s=j.result||[];
+    let slots=0,sec=0;for(const x of s){slots+=x.numSlots;sec+=x.samplePeriodSecs}
+    if(slots>0){slotMs=Math.round(sec*1000/slots);liveOk=true}
+  }catch(e){}
+  document.getElementById("slot").textContent=slotMs+" ms";
+  document.getElementById("slotNote").textContent=liveOk?"per block · live":"target (live data unavailable)";
+}
+loadSlot();setInterval(loadSlot,60000);
+
+// race
+const chains=[()=>slotMs,()=>2000,()=>12000,()=>600000];
+const t0=performance.now();
+function race(){
+  const el=(performance.now()-t0);
+  document.getElementById("secs").textContent=Math.floor(el/1000);
+  const counts=chains.map(f=>Math.floor(el/f()));
+  const max=Math.max(1,counts[0]);
+  counts.forEach((c,i)=>{document.getElementById("c"+i).textContent=c.toLocaleString();document.getElementById("f"+i).style.width=Math.max(c?2:0,c/max*100)+"%"});
+  requestAnimationFrame(race);
+}
+race();
+
+// reaction game
+const pad=document.getElementById("pad");
+let state="idle",round=0,times=[],goAt=0,timer;
+function setPad(cls,html){pad.className="card "+cls;pad.innerHTML=html}
+function next(){
+  state="wait";setPad("wait","wait for green…<small>round "+(round+1)+" / 3</small>");
+  timer=setTimeout(()=>{state="go";goAt=performance.now();setPad("go","TAP!")},1200+Math.random()*2300);
+}
+pad.addEventListener("pointerdown",()=>{
+  if(state==="idle"||state==="done"){round=0;times=[];document.getElementById("res").style.display="none";next();return}
+  if(state==="wait"){clearTimeout(timer);state="idle";setPad("","too early 🙈<small>a validator would slash you for that. tap to retry.</small>");return}
+  if(state==="go"){
+    const t=Math.round(performance.now()-goAt);times.push(t);round++;
+    if(round<3){state="pause";setPad("",t+" ms<small>next round…</small>");setTimeout(next,900)}
+    else{state="done";finish()}
+  }
+});
+let avg=0,ratio=0;
+function finish(){
+  avg=Math.round(times.reduce((a,b)=>a+b,0)/times.length);
+  ratio=avg/slotMs;
+  setPad("",avg+" ms<small>tap to play again</small>");
+  document.getElementById("avg").textContent=avg+" ms";
+  document.getElementById("verdict").innerHTML=verdict();
+  document.getElementById("res").style.display="block";
+  updateShare();
+  document.getElementById("res").scrollIntoView({behavior:"smooth",block:"center"});
+}
+function verdict(){
+  if(ratio<1) return "⚡ you beat a solana block. you are the validator now.";
+  if(ratio<1.3) return "😤 <b>"+ratio.toFixed(1)+"x</b> slower than solana. so close.";
+  if(ratio<2) return "🐢 <b>"+ratio.toFixed(1)+"x</b> slower than a solana block.";
+  return "🦕 <b>"+ratio.toFixed(1)+"x</b> slower than solana. ethereum would still be proud of you.";
+}
+function plain(){return verdict().replace(/<[^>]+>/g,"")}
+function updateShare(){
+  const tag=document.getElementById("tag").value.trim().split(/[\s,]+/).filter(Boolean).map(h=>h.startsWith("@")?h:"@"+h).join(" ");
+  const line=ratio<1?`i reacted in ${avg}ms and beat a solana block ⚡`:`i'm ${ratio.toFixed(1)}x slower than a solana block (${avg}ms vs ${slotMs}ms) 💀`;
+  const txt=`${line}\n\n${tag?tag+" bet you can't beat me.\n\n":""}test yours 👉 ${SITE}\n\n@solana @anza_xyz`;
+  document.getElementById("share").href="https://x.com/intent/post?text="+encodeURIComponent(txt);
+}
+document.getElementById("tag").addEventListener("input",updateShare);
+document.getElementById("again").onclick=()=>{state="idle";pad.dispatchEvent(new Event("pointerdown"));window.scrollTo({top:pad.offsetTop-80,behavior:"smooth"})};
+
+// share card
+document.getElementById("dl").onclick=()=>{
+  const c=document.getElementById("cv"),x=c.getContext("2d");
+  const g=x.createRadialGradient(600,0,50,600,0,900);g.addColorStop(0,"#141a33");g.addColorStop(1,"#0a0d1a");x.fillStyle=g;x.fillRect(0,0,1200,675);
+  const lg=x.createLinearGradient(80,0,400,0);lg.addColorStop(0,"#9945ff");lg.addColorStop(1,"#14f195");x.fillStyle=lg;x.fillRect(80,150,240,8);
+  x.fillStyle="#f2f2f5";x.font="800 56px system-ui,sans-serif";x.fillText("⚡ faster than solana?",80,120);
+  x.fillStyle="#9aa0b8";x.font="500 30px system-ui,sans-serif";x.fillText("my reaction",80,250);x.fillText("solana block",640,250);
+  x.font="800 130px system-ui,sans-serif";x.fillStyle=ratio<1?"#14f195":"#ff5c7a";x.fillText(avg+"ms",80,380);
+  x.fillStyle="#14f195";x.fillText(slotMs+"ms",640,380);
+  x.fillStyle="#f2f2f5";x.font="700 42px system-ui,sans-serif";x.fillText(plain().slice(0,60),80,490);
+  x.fillStyle="#9aa0b8";x.font="500 30px system-ui,sans-serif";x.fillText("test yours → "+SITE,80,600);
+  x.fillStyle="#f2f2f5";x.font="800 30px system-ui,sans-serif";x.fillText("owlchain",900,600);x.fillStyle="#14f195";x.fillText("labs",1027,600);
+  const a=document.createElement("a");a.download="faster-than-solana.png";a.href=c.toDataURL("image/png");a.click();
+};
+</script>
+</body>
+</html>
