@@ -19,10 +19,10 @@ export async function onRequestGet({ env }) {
       let slots = 0, sec = 0;
       for (const s of j.result || []) { slots += s.numSlots; sec += s.samplePeriodSecs; }
       if (slots > 0) {
-        return Response.json({ slotMs: Math.round((sec * 1000) / slots), live: true },
-          { headers: { "cache-control": "public, max-age=30" } });
+        return Response.json({ slotMs: Math.round((sec * 1000) / slots), slot: j.result[0].slot, live: true },
+          { headers: { "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
       }
     } catch (e) { errs.push(`${rpc.split("?")[0]}: ${e.message}`); }
   }
-  return Response.json({ slotMs: 200, live: false, hasKey: !!raw, errs }, { headers: { "cache-control": "public, max-age=30" } });
+  return Response.json({ slotMs: 200, live: false, hasKey: !!raw, errs }, { headers: { "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
 }
